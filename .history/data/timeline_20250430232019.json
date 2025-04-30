@@ -1,0 +1,45 @@
+{
+  "config": {
+    "startDate": "2021-10-01",
+    "startTime": "12:00:00",
+    "partnerName": "小陈",
+    "pageTitle": "我们的故事",
+    "counterTextBefore": "距离和小陈在一起还有",
+    "counterTextAfter": "和小陈在一起已经",
+    "password": "243659",
+    "counterBackground": {
+      "image": "/images/default_bg.jpg",
+      "blur": "5px",
+      "opacity": 0.9,
+      "colorOverlay": "rgba(0, 0, 0, 0.2)"
+    }
+  },
+  "timeline": [
+    {
+      "date": "2025-05-07",
+      "title": "谨以此站，纪念我们在一起的时光",
+      "description": "2023年3月5日是我们在一起的第520天<br>2025年5月7日是我们在一起的第1314天<br>我希望以这种方式可以记录我们往后的点点滴滴",
+      "interaction": {
+        "type": "memory",
+        "prompt": "猜猜我想对你说什么？",
+        "feedback": {
+          "title": "你猜？",
+          "default": "往后余生我都只想陪你走过，虽然程序员不懂浪漫，但是我想会懂你！"
+        }
+      },
+      "top": true
+    },
+    {
+      "date": "2020-12-08",
+      "title": "这是我们在彼此的人生中首次相遇！",
+      "description": "",
+      "image": "images/2020-12-08/1.png",
+      "type": "memory",
+      "prompt": "还记得我的开场白吗？",
+      "feedback": {
+        "title": "你猜？",
+        "default": "往后余生我都只想陪你走过，虽然程序员不懂浪漫，但是我想会懂你！"
+      }
+    }
+  ]
+}

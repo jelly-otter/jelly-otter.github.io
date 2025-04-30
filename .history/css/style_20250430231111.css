@@ -1,0 +1,566 @@
+/* 基础重置和字体设置 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'SarasaMonoSC', sans-serif;
+    user-select: none; /* 禁止选中文本 */
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE/Edge */
+}
+
+/* 自定义滚动条样式 */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(210, 180, 140, 0.5); /* 木纹色 */
+    border-radius: 4px;
+    transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(210, 180, 140, 0.7); /* 悬停时加深 */
+}
+
+/* Firefox 滚动条样式 */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(210, 180, 140, 0.5) rgba(255, 255, 255, 0.1);
+}
+
+html, body {
+    min-height: 100%;
+    font-family: 'Comic Sans MS', 'Chalkboard SE', 'Marker Felt', sans-serif; /* 使用更活泼/卡通风格的字体 */
+    background-color: #f4e9d8; /* 浅木色背景 */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 400px;
+    background-color: #fff;
+    border-radius: 20px; /* 更圆润的边角 */
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 4px solid #d2b48c; /* 木纹边框 */
+    position: relative;
+    z-index: 1;
+}
+
+/* 时间计数器样式 */
+.time-counter {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2px;
+    margin: 10px 0;
+    font-family: 'Digital', monospace;
+    font-size: 1.2em;
+    color: white;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+.time-unit {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 2px 4px;
+    border-radius: 4px;
+    min-width: 24px;
+    text-align: center;
+    font-family: 'Digital', monospace;
+}
+
+.time-label {
+    margin: 0 2px;
+    font-size: 0.8em;
+    opacity: 0.9;
+    font-family: 'SarasaMonoSC', sans-serif;
+}
+
+/* 计数器区域样式 */
+.counter-section {
+    color: white;
+    padding: 35px 20px;
+    text-align: center;
+    width: 100%;
+    border-radius: 15px 15px 0 0;
+    position: relative;
+    min-height: 260px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    backdrop-filter: blur(5px) saturate(180%);
+    -webkit-backdrop-filter: blur(5px) saturate(180%);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* 背景图片、模糊和叠加层的伪元素 */
+.counter-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+    background-size: cover;
+    background-position: center;
+    background-image: var(--bg-image, linear-gradient(135deg, #5b8cff, #00d2ff));
+    filter: blur(var(--bg-blur, 8px)) brightness(1.1);
+    opacity: var(--bg-opacity, 0.8);
+    transform: scale(1.1);
+}
+
+/* 背景图片上方的可选颜色叠加层 */
+.counter-section::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+    background-color: var(--bg-overlay, rgba(0, 0, 0, 0.2));
+}
+
+.counter-text {
+    font-size: 1.3em;
+    margin-bottom: 15px;
+    opacity: 0.95;
+    position: relative; /* 确保文本在伪元素之上 */
+    z-index: 1;
+}
+
+/* 计数器行的新样式 */
+.counter-line {
+    display: flex;
+    align-items: baseline; /* 对齐文本基线 */
+    justify-content: center;
+    line-height: 1;
+    margin-bottom: 15px; /* 调整间距 */
+    position: relative; /* 确保文本在伪元素之上 */
+    z-index: 1;
+}
+
+.counter-days {
+    font-size: 8em;
+    font-weight: bold;
+    transition: transform 0.3s ease-out;
+    margin-right: 15px;
+    font-family: 'LongMen', sans-serif;
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    letter-spacing: 5px;
+}
+
+.counter-label {
+    font-size: 1.6em;
+    opacity: 0.95;
+    font-weight: normal;
+    font-family: 'SarasaMonoSC', sans-serif;
+}
+
+.start-date {
+    font-size: 0.95em;
+    opacity: 0.85;
+    margin-top: 10px;
+    position: relative;
+    z-index: 1;
+    font-family: 'SarasaMonoSC', sans-serif;
+}
+
+/* 时间线区域样式 */
+.timeline-section {
+    padding: 25px 20px;
+    width: 100%;
+    background-color: #fffaf0; /* 奶油白色背景 */
+    border-radius: 0 0 15px 15px; /* 保持底部圆角 */
+}
+
+/* 增强的时间线项目样式 */
+.timeline-item {
+    background-color: #ffffff;
+    padding: 18px;
+    margin-bottom: 20px;
+    border-radius: 12px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+    border: 2px solid #e0e0e0;
+    position: relative; /* 用于可能的装饰 */
+    transition: transform 0.2s ease-in-out;
+}
+
+/* 置顶角标样式 */
+.timeline-item.pinned::after {
+    content: '置顶';
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+    color: white;
+    padding: 4px 12px;
+    font-size: 0.8em;
+    border-bottom-left-radius: 12px;
+    border-top-right-radius: 10px;
+    box-shadow: -2px 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 1;
+}
+
+.timeline-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.12);
+}
+
+.timeline-date {
+    font-size: 0.9em;
+    color: #888;
+    margin-bottom: 8px;
+    font-weight: bold;
+    font-family: 'SarasaMonoSC', sans-serif;
+}
+
+.timeline-item h3 {
+    margin-bottom: 8px;
+    color: #3a7bd5;
+    font-size: 1.2em;
+    font-family: 'SarasaMonoSC', sans-serif;
+}
+
+.timeline-item p {
+    font-size: 1em;
+    color: #555;
+    line-height: 1.5;
+    font-family: 'SarasaMonoSC', sans-serif;
+}
+
+.timeline-item img {
+    max-width: 100%;
+    border-radius: 8px;
+    margin-top: 12px;
+    border: 1px solid #eee;
+}
+
+/* 反馈/响应文本样式 */
+.feedback-content {
+    margin-top: 15px;
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 0.95em;
+    background-color: #e0f7fa; /* 记忆反馈的浅青色背景 */
+    color: #00796b; /* 青色文字 */
+    border-left: 4px solid #00bcd4; /* 青色边框 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    line-height: 1.6;
+}
+
+.feedback-content p {
+    margin: 0;
+    padding: 0;
+}
+
+/* 交互区域样式 */
+.interaction-section {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 2px dashed #add8e6; /* 浅蓝色虚线边框 */
+}
+
+.interaction-prompt strong {
+    color: #ff6b6b; /* 提示文字使用活泼的红色 */
+    font-size: 1.05em;
+}
+
+/* 统一的按钮容器样式 */
+.interaction-buttons {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+/* 统一的按钮样式 */
+.interaction-button {
+    background-color: #ffcc80; /* 浅橙色 */
+    color: #5d4037; /* 棕色文字 */
+    border: none;
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: 'SarasaMonoSC', sans-serif;
+    font-size: 0.9em;
+    font-weight: bold;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin: 2px 0;
+}
+
+.interaction-button:hover {
+    background-color: #ffb74d; /* 悬停时更深的橙色 */
+    transform: translateY(-1px);
+}
+
+.interaction-button:active {
+    transform: translateY(0px);
+}
+
+/* 天数显示样式 */
+.days-ago {
+    font-size: 0.8em;
+    opacity: 0.8;
+    font-weight: normal;
+}
+
+/* 反馈/响应文本样式 */
+.interaction-section p[id^="feedback-"] {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 0.95em;
+    background-color: #e0f7fa; /* 记忆反馈的浅青色背景 */
+    color: #00796b; /* 青色文字 */
+    border-left: 4px solid #00bcd4; /* 青色边框 */
+}
+
+/* 模态框样式 */
+.modal {
+    display: none; /* 默认隐藏 */
+    position: fixed; /* 固定位置 */
+    z-index: 1000; /* 置于顶层 */
+    left: 0;
+    top: 0;
+    width: 100%; /* 全宽 */
+    height: 100%; /* 全高 */
+    overflow: auto; /* 需要时启用滚动 */
+    background-color: rgba(0,0,0,0.5); /* 半透明黑色背景 */
+    padding-top: 60px; /* 模态框位置 */
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto; /* 顶部5%并居中 */
+    padding: 25px;
+    border: 1px solid #888;
+    width: 85%; /* 根据屏幕大小调整 */
+    max-width: 500px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    position: relative;
+    font-family: sans-serif; /* 模态框内容使用更易读的字体 */
+}
+
+/* 模态框内Markdown内容样式 */
+#modal-body h1, #modal-body h2, #modal-body h3 {
+    margin-top: 15px;
+    margin-bottom: 10px;
+    color: #333;
+}
+#modal-body p {
+    margin-bottom: 10px;
+    line-height: 1.6;
+    color: #444;
+}
+#modal-body ul, #modal-body ol {
+    margin-left: 20px;
+    margin-bottom: 10px;
+}
+#modal-body code {
+    background-color: #f0f0f0;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-family: monospace;
+}
+#modal-body pre {
+    background-color: #f0f0f0;
+    padding: 10px;
+    border-radius: 4px;
+    overflow-x: auto;
+}
+#modal-body blockquote {
+    border-left: 4px solid #ccc;
+    padding-left: 10px;
+    color: #666;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.close-button {
+    color: #aaa;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* 响应式调整 */
+@media (min-width: 600px) {
+    .container {
+        max-width: 500px;
+    }
+}
+
+/* 密码输入界面样式 */
+.password-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    border-radius: 20px;
+    pointer-events: auto;
+}
+
+.password-container {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    width: 300px;
+    pointer-events: auto;
+    transition: transform 0.3s ease;
+}
+
+.password-container h2.password-title {
+    color: #333;
+    margin-bottom: 20px;
+    font-family: 'SarasaMonoSC', sans-serif;
+    font-size: 1.2em;
+    transition: all 0.3s ease;
+}
+
+.password-container.error h2.password-title {
+    color: #ff6b6b;
+}
+
+.password-dots {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid #333;
+    transition: all 0.3s ease;
+}
+
+.dot.filled {
+    background-color: #333;
+}
+
+/* 错误状态动画 */
+.password-container.error {
+    animation: shake 0.5s ease-in-out;
+    border-color: #ff6b6b;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.password-error {
+    color: #ff6b6b;
+    margin-top: 20px;
+    font-family: 'SarasaMonoSC', sans-serif;
+    font-size: 0.9em;
+    display: none;
+}
+
+.keypad {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.keypad-row {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.key {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.05);
+    border: none;
+    color: #333;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'SarasaMonoSC', sans-serif;
+}
+
+.key:active {
+    background: rgba(0, 0, 0, 0.1);
+    transform: scale(0.95);
+}
+
+.key-empty {
+    background: transparent;
+    cursor: default;
+}
+
+.key-empty:active {
+    background: transparent;
+    transform: none;
+}
+
+.key-delete {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.key-delete svg {
+    width: 24px;
+    height: 24px;
+    color: #333;
+}
+
