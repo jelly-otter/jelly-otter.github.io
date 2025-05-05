@@ -8,6 +8,20 @@ document.addEventListener("DOMContentLoaded", () => {
     let config = null;
     let enteredPassword = "";
 
+    // 添加 CDN 基础路径
+    const CDN_BASE = 'https://cdn.jsdelivr.net/gh/MoLeft/JianyeWangAndJiaxinChen@main';
+
+    // 处理图片路径的函数
+    const getCDNImagePath = (path) => {
+        if (!path) return null;
+        // 移除开头的斜杠（如果有）
+        const cleanPath = path.startsWith('/') ? path.substring(1) : path;
+        // 确保路径不以斜杠结尾
+        const finalPath = cleanPath.endsWith('/') ? cleanPath.slice(0, -1) : cleanPath;
+        // 直接拼接，不需要额外的斜杠
+        return CDN_BASE + '/' + finalPath;
+    };
+
     // 检查是否在有效期内
     const checkPasswordExpiry = () => {
         const lastLogin = localStorage.getItem('lastLogin');
@@ -161,8 +175,8 @@ document.addEventListener("DOMContentLoaded", () => {
             // --- 应用计数器背景设置 --- 
             if (config.counterBackground && counterSection) {
                 const bgConfig = config.counterBackground;
-                // 为CSS url使用转义引号，处理图片路径中可能存在的引号
-                const imageUrl = bgConfig.image ? `url(\'${bgConfig.image.replace(/'/g, "\\'")}\')` : 'none'; 
+                // 使用 CDN 路径处理背景图片
+                const imageUrl = bgConfig.image ? `url('${getCDNImagePath(bgConfig.image)}')` : 'none'; 
                 const blurAmount = bgConfig.blur || '0px';
                 const opacityValue = bgConfig.opacity !== undefined ? bgConfig.opacity : 1;
                 const overlayColor = bgConfig.colorOverlay || 'transparent';
@@ -222,6 +236,21 @@ document.addEventListener("DOMContentLoaded", () => {
                 
                 timelineSection.innerHTML = ''; // 清除之前的时间线项目
                 sortedEvents.forEach(event => {
+                    // 处理事件中的图片路径
+                    if (event.image) {
+                        event.image = getCDNImagePath(event.image);
+                    }
+                    // 处理交互选项中的图片路径
+                    if (event.interaction && event.interaction.options) {
+                        event.interaction.options.forEach(option => {
+                            if (option.content && option.format === 'markdown') {
+                                // 处理 Markdown 内容中的图片路径
+                                option.content = option.content.replace(/!\[.*?\]\((.*?)\)/g, (match, path) => {
+                                    return match.replace(path, getCDNImagePath(path));
+                                });
+                            }
+                        });
+                    }
                     const item = createTimelineItem(event);
                     timelineSection.appendChild(item);
                 });
