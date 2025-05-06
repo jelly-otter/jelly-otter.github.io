@@ -13,7 +13,7 @@
         <!-- Add library for Markdown rendering -->
         <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     </head>
-    <body>
+    <body data-theme="light">
         <!-- 密码输入界面 -->
         <div id="password-screen" class="password-screen">
             <div class="password-container">
@@ -158,6 +158,29 @@
                             <span class="settings-unit">分钟</span>
                         </div>
                         <div class="settings-item-description">设置密码的有效期（1-1440分钟）</div>
+                    </div>
+                    <!-- 添加夜间模式设置 -->
+                    <div class="settings-item theme-settings">
+                        <div class="theme-settings-row">
+                            <div class="theme-settings-label">
+                                <span class="theme-settings-title">夜间模式</span>
+                                <span class="theme-settings-description">切换到深色主题</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="dark-mode" class="settings-checkbox">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <div class="theme-settings-row">
+                            <div class="theme-settings-label">
+                                <span class="theme-settings-title">跟随系统</span>
+                                <span class="theme-settings-description">根据系统设置自动切换主题</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="system-theme" class="settings-checkbox">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
                     </div>
                 </div>
                 <div class="settings-actions">

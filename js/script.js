@@ -8,6 +8,69 @@ document.addEventListener("DOMContentLoaded", () => {
     let config = null;
     let enteredPassword = "";
 
+    // 添加夜间模式相关变量
+    const darkModeToggle = document.getElementById("dark-mode");
+    const systemThemeToggle = document.getElementById("system-theme");
+    const htmlElement = document.documentElement;
+    const bodyElement = document.body;
+
+    // 检查系统主题
+    const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
+
+    // 初始化主题设置
+    const initThemeSettings = () => {
+        // 从localStorage加载设置
+        const settings = JSON.parse(localStorage.getItem("settings") || "{}");
+        const darkMode = settings.darkMode || false;
+        const systemTheme = settings.systemTheme || false;
+
+        // 设置开关状态
+        darkModeToggle.checked = darkMode;
+        systemThemeToggle.checked = systemTheme;
+
+        // 应用主题
+        applyTheme(darkMode, systemTheme);
+    };
+
+    // 应用主题
+    const applyTheme = (darkMode, systemTheme) => {
+        if (systemTheme) {
+            // 如果启用系统主题，则跟随系统设置
+            const isDark = prefersDarkScheme.matches;
+            bodyElement.setAttribute("data-theme", isDark ? "dark" : "light");
+        } else {
+            // 否则使用手动设置
+            bodyElement.setAttribute("data-theme", darkMode ? "dark" : "light");
+        }
+    };
+
+    // 监听系统主题变化
+    prefersDarkScheme.addEventListener("change", (e) => {
+        const settings = JSON.parse(localStorage.getItem("settings") || "{}");
+        if (settings.systemTheme) {
+            bodyElement.setAttribute("data-theme", e.matches ? "dark" : "light");
+        }
+    });
+
+    // 监听手动主题切换
+    darkModeToggle.addEventListener("change", () => {
+        // 当手动切换夜间模式时，自动取消跟随系统
+        if (darkModeToggle.checked) {
+            systemThemeToggle.checked = false;
+        }
+    });
+
+    // 监听系统主题切换
+    systemThemeToggle.addEventListener("change", () => {
+        // 当启用跟随系统时，根据系统主题设置夜间模式开关状态
+        if (systemThemeToggle.checked) {
+            darkModeToggle.checked = prefersDarkScheme.matches;
+        }
+    });
+
+    // 初始化主题设置
+    initThemeSettings();
+
     // 添加 CDN 基础路径
     const CDN_BASE = 'https://cdn.jsdelivr.net/gh/MoLeft/JianyeWangAndJiaxinChen@main';
 
@@ -315,7 +378,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const saveSettingsToStorage = () => {
         const settings = {
             timelineOrder: timelineOrder.checked,
-            passwordExpiry: parseInt(passwordExpiry.value) || 30
+            passwordExpiry: parseInt(passwordExpiry.value) || 30,
+            darkMode: darkModeToggle.checked,
+            systemTheme: systemThemeToggle.checked
         };
         localStorage.setItem("settings", JSON.stringify(settings));
         
@@ -331,8 +396,16 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
+        // 应用主题设置
+        applyTheme(settings.darkMode, settings.systemTheme);
+
         // 重新加载时间线
         loadTimeline();
+
+        // 触发懒加载检查
+        lazyLoadImages();
+        // 延迟一小段时间再次检查，确保所有元素都已正确渲染
+        setTimeout(lazyLoadImages, 100);
     };
 
     // 加载时间线
