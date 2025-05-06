@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initThemeSettings();
 
     // 添加 CDN 基础路径
-    const CDN_BASE = 'https://cdn.jsdelivr.net/gh/MoLeft/JianyeWangAndJiaxinChen@main';
+    const CDN_BASE = 'https://cdn.jsdelivr.net/gh/MoLeft/LoveDiary-Timeline@main';
 
     // 处理图片路径的函数
     const getCDNImagePath = (path) => {
