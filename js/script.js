@@ -163,6 +163,48 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             });
 
+            // 添加键盘事件监听
+            document.addEventListener("keydown", (event) => {
+                // 如果密码屏幕没有显示，则不处理键盘事件
+                if (passwordScreen.style.display === "none") return;
+
+                const key = event.key;
+                
+                // 处理数字键 0-9
+                if (/^[0-9]$/.test(key) && enteredPassword.length < 6) {
+                    // 找到对应的按钮并触发点击效果
+                    const button = document.querySelector(`.key[data-value="${key}"]`);
+                    if (button) {
+                        button.classList.add("active");
+                        setTimeout(() => button.classList.remove("active"), 200);
+                        
+                        enteredPassword += key;
+                        dots[enteredPassword.length - 1].classList.add("filled");
+
+                        if (enteredPassword.length === 6) {
+                            setTimeout(verifyPassword, 200);
+                        }
+                    }
+                }
+                // 处理删除键（Backspace 和 Delete）
+                else if ((key === "Backspace" || key === "Delete") && enteredPassword.length > 0) {
+                    const deleteButton = document.querySelector('.key-delete');
+                    if (deleteButton) {
+                        deleteButton.classList.add("active");
+                        setTimeout(() => deleteButton.classList.remove("active"), 200);
+                        
+                        enteredPassword = enteredPassword.slice(0, -1);
+                        dots.forEach((dot, index) => {
+                            if (index < enteredPassword.length) {
+                                dot.classList.add("filled");
+                            } else {
+                                dot.classList.remove("filled");
+                            }
+                        });
+                    }
+                }
+            });
+
             // 验证密码
             function verifyPassword() {
                 if (enteredPassword === config.password) {
