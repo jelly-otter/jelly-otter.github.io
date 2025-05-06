@@ -1,6 +1,6 @@
-# 恋爱纪念日网站
+# LoveDiary-Timeline 恋爱日记时间线
 
-这是一个用于记录和展示恋爱纪念日的响应式网站。网站包含密码保护、时间线展示、互动功能等特性。
+这是一个用于记录和展示恋爱日记的响应式时间线网站。网站包含密码保护、时间线展示、互动功能、自适应暗色模式等特性。
 
 TIPS：这是一个完全由 [**Cursor**](https://www.cursor.com/) 开发的项目（包括README介绍，当然除了这句话）
 
@@ -17,7 +17,7 @@ TIPS：这是一个完全由 [**Cursor**](https://www.cursor.com/) 开发的项�
 ## 项目结构
 
 ```
-├── index.html          # 主页面
+├── index.html         # 主页面
 ├── css/               # 样式文件
 │   └── style.css      # 主样式文件
 ├── js/                # JavaScript文件
