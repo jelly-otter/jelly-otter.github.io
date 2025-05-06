@@ -47,6 +47,24 @@ html, body {
     padding: 20px;
 }
 
+@font-face {
+    font-family: 'Digital';
+    src: url('https://cdn.jsdelivr.net/gh/MoLeft/JianyeWangAndJiaxinChen@main/fonts/DS-DIG.ttf') format('truetype');
+    font-display: swap;
+}
+
+/* 禁用缩放 */
+html {
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+body {
+    touch-action: manipulation;
+    -webkit-overflow-scrolling: touch;
+}
+
 .container {
     width: 100%;
     max-width: 400px;
@@ -165,17 +183,21 @@ html, body {
     font-weight: bold;
     transition: transform 0.3s ease-out;
     margin-right: 15px;
-    font-family: 'WoZiKuJingZhiZi-2', sans-serif;
+    font-family: 'Microsoft YaHei', sans-serif;
     color: #fff;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
     letter-spacing: 5px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .counter-label {
     margin: 0 2px;
-    font-size: 0.8em;
+    font-size: 1.2em;
     opacity: 0.9;
-    font-family: 'WoZiKuJingZhiZi-2', sans-serif;
+    font-family: 'Microsoft YaHei', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .start-date {
