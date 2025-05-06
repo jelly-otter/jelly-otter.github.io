@@ -362,71 +362,74 @@ function createTimelineItem(eventData) {
     const itemDiv = document.createElement("div");
     itemDiv.classList.add("timeline-item");
     
+    // 如果是置顶项目，添加pinned类
     if (eventData.top) {
         itemDiv.classList.add("pinned");
     }
 
-    const dateElement = document.createElement("div");
-    dateElement.classList.add("timeline-date");
-    dateElement.textContent = eventData.date;
-    itemDiv.appendChild(dateElement);
-
-    const titleElement = document.createElement("h3");
-    titleElement.textContent = eventData.title;
-    itemDiv.appendChild(titleElement);
-
-    if (eventData.description) {
-        const descriptionElement = document.createElement("p");
-        descriptionElement.innerHTML = eventData.description;
-        itemDiv.appendChild(descriptionElement);
+    const dateOptions = { year: "numeric", month: "long", day: "numeric" };
+    // 添加无效日期的错误处理
+    let eventDateStr = "无效日期";
+    let daysDiff = 0;
+    try {
+        const eventDate = new Date(eventData.date + "T00:00:00");
+        if (!isNaN(eventDate)) {
+            // 格式化日期为 yyddMMss 形式
+            const year = eventDate.getFullYear();
+            const month = String(eventDate.getMonth() + 1).padStart(2, '0');
+            const day = String(eventDate.getDate()).padStart(2, '0');
+            eventDateStr = `${year}年${month}月${day}日`;
+            
+            // 计算距离今天的天数
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const timeDiff = today.getTime() - eventDate.getTime();
+            daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+        }
+    } catch (e) {
+        console.error("时间线事件中的日期格式无效:", eventData.date);
     }
+
+    let contentHTML = `
+        <div class="timeline-date">${eventDateStr}</div>
+        <h3>${eventData.title || ''}</h3>
+        <p>${eventData.description || ''}</p>
+    `;
 
     if (eventData.image) {
-        const imageContainer = document.createElement("div");
-        imageContainer.classList.add("image-container");
-        
-        const imageElement = document.createElement("img");
-        imageElement.classList.add("lazy-image");
-        imageElement.setAttribute("data-src", eventData.image);
-        imageElement.setAttribute("alt", eventData.title);
-        
-        imageContainer.appendChild(imageElement);
-        itemDiv.appendChild(imageContainer);
+        contentHTML += `
+            <div class="image-container">
+                <img class="lazy-image" 
+                     data-src="${eventData.image}" 
+                     alt="${eventData.title || '时间线图片'}" 
+                     onerror="this.style.display='none'; console.warn('图片未找到: ${eventData.image}')">
+            </div>`;
     }
 
+    // 只有当 interaction 存在时才添加交互部分
     if (eventData.interaction) {
-        const interactionDiv = document.createElement("div");
-        interactionDiv.classList.add("interaction-section");
+        contentHTML += `<div class="interaction-section">
+            <p class="interaction-prompt"><strong>${eventData.interaction.prompt || ''}</strong></p>
+            <div class="interaction-buttons">
+        `;
 
-        const promptElement = document.createElement("p");
-        promptElement.classList.add("interaction-prompt");
-        promptElement.innerHTML = `<strong>${eventData.interaction.prompt}</strong>`;
-        interactionDiv.appendChild(promptElement);
-
-        if (eventData.interaction.type === "memory") {
-            const button = document.createElement("button");
-            button.classList.add("interaction-button");
-            button.textContent = eventData.interaction.feedback.title || "回忆一下";
-            button.onclick = () => showMemoryFeedback(eventData.interaction.feedback.default);
-            interactionDiv.appendChild(button);
-        } else if (eventData.interaction.type === "choice" && eventData.interaction.options) {
-            const buttonsDiv = document.createElement("div");
-            buttonsDiv.classList.add("interaction-buttons");
-            
-            eventData.interaction.options.forEach(option => {
-                const button = document.createElement("button");
-                button.classList.add("interaction-button");
-                button.textContent = option.title;
-                button.onclick = () => showChoiceFeedback(option);
-                buttonsDiv.appendChild(button);
+        if (eventData.interaction.type === "memory" && eventData.interaction.feedback) {
+            const feedbackId = `feedback-${eventData.date.replace(/\W/g, '-')}-${Math.random().toString(36).substring(2, 7)}`;
+            contentHTML += `<button class="interaction-button" onclick="showFeedback('${feedbackId}')">${eventData.interaction.feedback.title || '回忆一下'} <span class="days-ago">(${daysDiff}天前)</span></button>`;
+            contentHTML += `<div id="${feedbackId}" class="feedback-content" style="display: none;">${eventData.interaction.feedback.default || ''}</div>`;
+        } else if (eventData.interaction.type === "choice" && Array.isArray(eventData.interaction.options)) {
+            eventData.interaction.options.forEach((option) => {
+                if (option && option.title) {
+                    // 转义内容以用于onclick属性字符串
+                    const escapedContent = escapeForJsStringLiteral(option.content || '');
+                    contentHTML += `<button class="interaction-button" onclick="openModal('${escapedContent}', '${option.format || 'markdown'}')">${option.title} <span class="days-ago">(${daysDiff}天前)</span></button>`;
+                }
             });
-            
-            interactionDiv.appendChild(buttonsDiv);
         }
-
-        itemDiv.appendChild(interactionDiv);
+        contentHTML += `</div></div>`;
     }
 
+    itemDiv.innerHTML = contentHTML;
     return itemDiv;
 }
 
@@ -452,10 +455,45 @@ function openModal(content, format = 'markdown') {
             // 基本清理（移除script标签）- 生产环境建议使用DOMPurify等专业库
             const sanitizedHtml = rawHtml.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
             modalBody.innerHTML = sanitizedHtml;
+            
+            // 处理模态框中的图片，添加懒加载
+            const images = modalBody.querySelectorAll('img');
+            images.forEach(img => {
+                // 保存原始src
+                const originalSrc = img.src;
+                // 添加懒加载类
+                img.classList.add('lazy-image');
+                // 将src移动到data-src
+                img.setAttribute('data-src', originalSrc);
+                img.removeAttribute('src');
+                // 添加图片容器
+                const container = document.createElement('div');
+                container.classList.add('image-container');
+                img.parentNode.insertBefore(container, img);
+                container.appendChild(img);
+            });
+            
+            // 触发懒加载检查
+            lazyLoadImages();
         } else if (format === 'html') {
             // For HTML content, we still want to sanitize it
             const sanitizedHtml = content.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
             modalBody.innerHTML = sanitizedHtml;
+            
+            // 同样处理HTML内容中的图片
+            const images = modalBody.querySelectorAll('img');
+            images.forEach(img => {
+                const originalSrc = img.src;
+                img.classList.add('lazy-image');
+                img.setAttribute('data-src', originalSrc);
+                img.removeAttribute('src');
+                const container = document.createElement('div');
+                container.classList.add('image-container');
+                img.parentNode.insertBefore(container, img);
+                container.appendChild(img);
+            });
+            
+            lazyLoadImages();
         } else {
             console.warn("Unsupported format or marked.js not loaded. Displaying raw text.");
             modalBody.textContent = content; // Fallback to plain text
@@ -500,5 +538,17 @@ function unescapeFromJsStringLiteral(str) {
               .replace(/\\n/g, '\n')
               .replace(/\\'/g, "'")
               .replace(/\\\\/g, '\\'); // Unescape backslash
+}
+
+// 显示记忆反馈
+function showMemoryFeedback(content) {
+    if (!content) return;
+    openModal(content, 'markdown');
+}
+
+// 显示选择反馈
+function showChoiceFeedback(option) {
+    if (!option) return;
+    openModal(option.content, option.format || 'markdown');
 }
 
