@@ -105,7 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.style.overflow = 'hidden';
     document.documentElement.style.overflow = 'hidden';
 
-    // 获取配置
+    // 获取配置并加载内容
     fetch("data/timeline.json")
         .then(response => {
             if (!response.ok) {
@@ -118,12 +118,13 @@ document.addEventListener("DOMContentLoaded", () => {
             // 设置 CDN 基础路径
             window.CDN_BASE = config.cdnBase || '';
             
+            // 立即开始加载时间线数据
+            loadTimelineData();
+            
             // 如果密码有效，直接显示内容并恢复滚动
             if (checkPasswordExpiry()) {
                 document.body.style.overflow = '';
                 document.documentElement.style.overflow = '';
-                // 加载时间线数据
-                loadTimelineData();
                 return;
             }
 
@@ -173,9 +174,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     
                     // 记录登录时间
                     localStorage.setItem('lastLogin', new Date().getTime().toString());
-                    
-                    // 加载时间线数据
-                    loadTimelineData();
                 } else {
                     // 密码错误，清空输入并显示错误信息
                     enteredPassword = "";
