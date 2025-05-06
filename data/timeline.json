@@ -7,10 +7,11 @@
     "counterTextBefore": "距离和小陈在一起还有",
     "counterTextAfter": "和小陈在一起已经",
     "password": "243659",
+    "cdnBase": "https://cdn.jsdelivr.net/gh/MoLeft/LoveDiary-Timeline@main",
     "counterBackground": {
-      "image": "/images/default_bg.jpg",
-      "blur": "5px",
-      "opacity": 0.9,
+      "image": "images/default_bg.jpg",
+      "blur": "8px",
+      "opacity": 0.8,
       "colorOverlay": "rgba(0, 0, 0, 0.2)"
     }
   },

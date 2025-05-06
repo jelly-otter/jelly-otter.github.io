@@ -17,6 +17,16 @@ document.addEventListener("DOMContentLoaded", () => {
     // 检查系统主题
     const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
 
+    // 添加 CDN 基础路径（移到全局作用域）
+    window.CDN_BASE = '';
+
+    // 处理图片路径的函数
+    const processImagePath = (path) => {
+        if (!path) return '';
+        if (path.startsWith('http')) return path;
+        return `${window.CDN_BASE}/${path}`;
+    };
+
     // 初始化主题设置
     const initThemeSettings = () => {
         // 从localStorage加载设置
@@ -71,20 +81,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // 初始化主题设置
     initThemeSettings();
 
-    // 添加 CDN 基础路径
-    const CDN_BASE = 'https://cdn.jsdelivr.net/gh/MoLeft/LoveDiary-Timeline@main';
-
-    // 处理图片路径的函数
-    const getCDNImagePath = (path) => {
-        if (!path) return null;
-        // 移除开头的斜杠（如果有）
-        const cleanPath = path.startsWith('/') ? path.substring(1) : path;
-        // 确保路径不以斜杠结尾
-        const finalPath = cleanPath.endsWith('/') ? cleanPath.slice(0, -1) : cleanPath;
-        // 直接拼接，不需要额外的斜杠
-        return CDN_BASE + '/' + finalPath;
-    };
-
     // 检查是否在有效期内
     const checkPasswordExpiry = () => {
         const lastLogin = localStorage.getItem('lastLogin');
@@ -115,6 +111,8 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .then(data => {
             config = data.config;
+            // 设置 CDN 基础路径
+            window.CDN_BASE = config.cdnBase || '';
             
             // 如果密码有效，直接显示内容并恢复滚动
             if (checkPasswordExpiry()) {
@@ -239,7 +237,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (config.counterBackground && counterSection) {
                 const bgConfig = config.counterBackground;
                 // 使用 CDN 路径处理背景图片
-                const imageUrl = bgConfig.image ? `url('${getCDNImagePath(bgConfig.image)}')` : 'none'; 
+                const imageUrl = bgConfig.image ? `url('${processImagePath(bgConfig.image)}')` : 'none'; 
                 const blurAmount = bgConfig.blur || '0px';
                 const opacityValue = bgConfig.opacity !== undefined ? bgConfig.opacity : 1;
                 const overlayColor = bgConfig.colorOverlay || 'transparent';
@@ -301,7 +299,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 sortedEvents.forEach(event => {
                     // 处理事件中的图片路径
                     if (event.image) {
-                        event.image = getCDNImagePath(event.image);
+                        event.image = processImagePath(event.image);
                     }
                     // 处理交互选项中的图片路径
                     if (event.interaction && event.interaction.options) {
@@ -309,7 +307,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             if (option.content && option.format === 'markdown') {
                                 // 处理 Markdown 内容中的图片路径
                                 option.content = option.content.replace(/!\[.*?\]\((.*?)\)/g, (match, path) => {
-                                    return match.replace(path, getCDNImagePath(path));
+                                    return match.replace(path, processImagePath(path));
                                 });
                             }
                         });
@@ -400,7 +398,7 @@ document.addEventListener("DOMContentLoaded", () => {
         applyTheme(settings.darkMode, settings.systemTheme);
 
         // 重新加载时间线
-        loadTimeline();
+        loadTimelineData();
 
         // 触发懒加载检查
         lazyLoadImages();
@@ -409,54 +407,55 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     // 加载时间线
-    const loadTimeline = () => {
-        fetch("data/timeline.json")
-            .then(response => response.json())
-            .then(data => {
-                const timelineEvents = data.timeline;
-                const settings = JSON.parse(localStorage.getItem("settings") || "{}");
-                
-                if (Array.isArray(timelineEvents)) {
-                    // 分离置顶和非置顶事件
-                    const pinnedEvents = timelineEvents.filter(event => event.top === true);
-                    const unpinnedEvents = timelineEvents.filter(event => !event.top);
-                    
-                    // 根据设置决定排序顺序
-                    if (settings.timelineOrder) {
-                        // 正序
-                        unpinnedEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
-                    } else {
-                        // 倒序
-                        unpinnedEvents.sort((a, b) => new Date(b.date) - new Date(a.date));
-                    }
-                    
-                    // 合并数组，置顶事件在前
-                    const sortedEvents = [...pinnedEvents, ...unpinnedEvents];
-                    
-                    const timelineSection = document.getElementById("timeline-section");
-                    timelineSection.innerHTML = '';
-                    
-                    sortedEvents.forEach(event => {
-                        if (event.image) {
-                            event.image = getCDNImagePath(event.image);
-                        }
-                        if (event.interaction && event.interaction.options) {
-                            event.interaction.options.forEach(option => {
-                                if (option.content && option.format === 'markdown') {
-                                    option.content = option.content.replace(/!\[.*?\]\((.*?)\)/g, (match, path) => {
-                                        return match.replace(path, getCDNImagePath(path));
-                                    });
-                                }
-                            });
-                        }
-                        const item = createTimelineItem(event);
-                        timelineSection.appendChild(item);
-                    });
+    const loadTimelineData = async () => {
+        try {
+            const response = await fetch('data/timeline.json');
+            const data = await response.json();
+            
+            // 设置 CDN 基础路径
+            window.CDN_BASE = data.config.cdnBase || '';
+            
+            // 更新页面标题
+            document.title = data.config.pageTitle;
+            
+            // 更新倒计时文本
+            const counterTextBefore = document.getElementById("counter-text-before");
+            const counterTextAfter = document.getElementById("counter-text-after");
+            if (counterTextBefore) counterTextBefore.textContent = data.config.counterTextBefore;
+            if (counterTextAfter) counterTextAfter.textContent = data.config.counterTextAfter;
+            
+            // 更新倒计时背景
+            const counterBackground = data.config.counterBackground;
+            if (counterBackground) {
+                const counterSection = document.querySelector(".counter-section");
+                if (counterSection) {
+                    counterSection.style.backgroundImage = `url(${processImagePath(counterBackground.image)})`;
+                    counterSection.style.backdropFilter = `blur(${counterBackground.blur})`;
+                    counterSection.style.backgroundColor = counterBackground.colorOverlay;
                 }
-            })
-            .catch(error => {
-                console.error("加载时间线数据时出错:", error);
-            });
+            }
+            
+            // 渲染时间线
+            renderTimeline(data.timeline);
+            
+            // 初始化倒计时
+            initCountdown(data.config.startDate, data.config.startTime);
+            
+            // 初始化密码验证
+            initPasswordValidation(data.config.password);
+            
+            // 初始化设置
+            initSettings();
+            
+            // 初始化主题设置
+            initThemeSettings();
+            
+            // 初始化懒加载
+            initLazyLoading();
+            
+        } catch (error) {
+            console.error('加载时间线数据失败:', error);
+        }
     };
 
     // 设置按钮点击事件
