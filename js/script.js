@@ -398,6 +398,12 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    // 关闭按钮点击事件
+    const settingsCloseButton = document.querySelector(".settings-close-button");
+    settingsCloseButton.addEventListener("click", () => {
+        settingsModal.style.display = "none";
+    });
+
     // 保存设置按钮点击事件
     saveSettings.addEventListener("click", () => {
         saveSettingsToStorage();

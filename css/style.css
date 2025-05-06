@@ -165,7 +165,7 @@ html, body {
     font-weight: bold;
     transition: transform 0.3s ease-out;
     margin-right: 15px;
-    font-family: sans-serif;
+    font-family: 'WoZiKuJingZhiZi-2', sans-serif;
     color: #fff;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
     letter-spacing: 5px;
@@ -175,7 +175,7 @@ html, body {
     margin: 0 2px;
     font-size: 0.8em;
     opacity: 0.9;
-    font-family: sans-serif;
+    font-family: 'WoZiKuJingZhiZi-2', sans-serif;
 }
 
 .start-date {
@@ -913,5 +913,51 @@ input:checked + .slider:before {
 .back-to-top:active {
     transform: translateY(0);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* 设置对话框关闭按钮样式 */
+.settings-close-button {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 30px;
+    height: 30px;
+    border: none;
+    background: none;
+    color: #666;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    z-index: 1;
+}
+
+.settings-close-button svg {
+    width: 20px;
+    height: 20px;
+    transition: all 0.3s ease;
+}
+
+.settings-close-button:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: #333;
+}
+
+.settings-close-button:hover svg {
+    transform: rotate(90deg);
+}
+
+.settings-close-button:active {
+    background-color: rgba(0, 0, 0, 0.1);
+    transform: scale(0.95);
+}
+
+/* 拖动时的样式 */
+.settings-button.dragging {
+    opacity: 0.8;
+    cursor: grabbing;
 }
 
