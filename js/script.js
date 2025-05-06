@@ -276,6 +276,26 @@ document.addEventListener("DOMContentLoaded", () => {
             closeModal();
         }
     }
+
+    // 初始化懒加载
+    lazyLoadImages();
+    
+    // 监听滚动事件，动态加载图片
+    let scrollTimeout;
+    window.addEventListener('scroll', () => {
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+            lazyLoadImages();
+        }, 100); // 防抖处理
+    });
+
+    // 在页面所有资源加载完成后重新检查可视区域
+    window.addEventListener('load', () => {
+        // 立即检查一次可视区域
+        lazyLoadImages();
+        // 延迟一小段时间再次检查，确保所有元素都已正确渲染
+        setTimeout(lazyLoadImages, 100);
+    });
 });
 
 function animateCounter(element, targetValue) {
@@ -307,72 +327,106 @@ function animateCounter(element, targetValue) {
     }, stepTime);
 }
 
+// 图片懒加载实现
+function lazyLoadImages() {
+    const images = document.querySelectorAll('.lazy-image:not(.loaded)');
+    if (images.length === 0) return;
+
+    const imageObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target;
+                const src = img.getAttribute('data-src');
+                if (src) {
+                    img.src = src;
+                    img.onload = () => {
+                        img.classList.add('loaded');
+                        img.parentElement.classList.add('loaded');
+                    };
+                    observer.unobserve(img);
+                }
+            }
+        });
+    }, {
+        rootMargin: '50px 0px',
+        threshold: 0.1
+    });
+
+    images.forEach(img => {
+        imageObserver.observe(img);
+    });
+}
+
+// 修改创建时间线项目的函数
 function createTimelineItem(eventData) {
     const itemDiv = document.createElement("div");
     itemDiv.classList.add("timeline-item");
     
-    // 如果是置顶项目，添加pinned类
     if (eventData.top) {
         itemDiv.classList.add("pinned");
     }
 
-    const dateOptions = { year: "numeric", month: "long", day: "numeric" };
-    // 添加无效日期的错误处理
-    let eventDateStr = "无效日期";
-    let daysDiff = 0;
-    try {
-        const eventDate = new Date(eventData.date + "T00:00:00");
-        if (!isNaN(eventDate)) {
-            // 格式化日期为 yyddMMss 形式
-            const year = eventDate.getFullYear();
-            const month = String(eventDate.getMonth() + 1).padStart(2, '0');
-            const day = String(eventDate.getDate()).padStart(2, '0');
-            eventDateStr = `${year}年${month}月${day}日`;
-            
-            // 计算距离今天的天数
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const timeDiff = today.getTime() - eventDate.getTime();
-            daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-        }
-    } catch (e) {
-        console.error("时间线事件中的日期格式无效:", eventData.date);
-    }
+    const dateElement = document.createElement("div");
+    dateElement.classList.add("timeline-date");
+    dateElement.textContent = eventData.date;
+    itemDiv.appendChild(dateElement);
 
-    let contentHTML = `
-        <div class="timeline-date">${eventDateStr}</div>
-        <h3>${eventData.title || ''}</h3>
-        <p>${eventData.description || ''}</p>
-    `;
+    const titleElement = document.createElement("h3");
+    titleElement.textContent = eventData.title;
+    itemDiv.appendChild(titleElement);
+
+    if (eventData.description) {
+        const descriptionElement = document.createElement("p");
+        descriptionElement.innerHTML = eventData.description;
+        itemDiv.appendChild(descriptionElement);
+    }
 
     if (eventData.image) {
-        contentHTML += `<img src="${eventData.image}" alt="${eventData.title || '时间线图片'}" style="max-width: 100%; border-radius: 8px; margin-top: 12px;" onerror="this.style.display='none'; console.warn('图片未找到: ${eventData.image}')">`;
+        const imageContainer = document.createElement("div");
+        imageContainer.classList.add("image-container");
+        
+        const imageElement = document.createElement("img");
+        imageElement.classList.add("lazy-image");
+        imageElement.setAttribute("data-src", eventData.image);
+        imageElement.setAttribute("alt", eventData.title);
+        
+        imageContainer.appendChild(imageElement);
+        itemDiv.appendChild(imageContainer);
     }
 
-    // 只有当 interaction 存在时才添加交互部分
     if (eventData.interaction) {
-        contentHTML += `<div class="interaction-section">
-            <p class="interaction-prompt"><strong>${eventData.interaction.prompt || ''}</strong></p>
-            <div class="interaction-buttons">
-        `;
+        const interactionDiv = document.createElement("div");
+        interactionDiv.classList.add("interaction-section");
 
-        if (eventData.interaction.type === "memory" && eventData.interaction.feedback) {
-            const feedbackId = `feedback-${eventData.date.replace(/\W/g, '-')}-${Math.random().toString(36).substring(2, 7)}`;
-            contentHTML += `<button class="interaction-button" onclick="showFeedback('${feedbackId}')">${eventData.interaction.feedback.title || '回忆一下'} <span class="days-ago">(${daysDiff}天前)</span></button>`;
-            contentHTML += `<div id="${feedbackId}" class="feedback-content" style="display: none;">${eventData.interaction.feedback.default || ''}</div>`;
-        } else if (eventData.interaction.type === "choice" && Array.isArray(eventData.interaction.options)) {
-            eventData.interaction.options.forEach((option) => {
-                if (option && option.title) {
-                    // 转义内容以用于onclick属性字符串
-                    const escapedContent = escapeForJsStringLiteral(option.content || '');
-                    contentHTML += `<button class="interaction-button" onclick="openModal('${escapedContent}', '${option.format || 'markdown'}')">${option.title} <span class="days-ago">(${daysDiff}天前)</span></button>`;
-                }
+        const promptElement = document.createElement("p");
+        promptElement.classList.add("interaction-prompt");
+        promptElement.innerHTML = `<strong>${eventData.interaction.prompt}</strong>`;
+        interactionDiv.appendChild(promptElement);
+
+        if (eventData.interaction.type === "memory") {
+            const button = document.createElement("button");
+            button.classList.add("interaction-button");
+            button.textContent = eventData.interaction.feedback.title || "回忆一下";
+            button.onclick = () => showMemoryFeedback(eventData.interaction.feedback.default);
+            interactionDiv.appendChild(button);
+        } else if (eventData.interaction.type === "choice" && eventData.interaction.options) {
+            const buttonsDiv = document.createElement("div");
+            buttonsDiv.classList.add("interaction-buttons");
+            
+            eventData.interaction.options.forEach(option => {
+                const button = document.createElement("button");
+                button.classList.add("interaction-button");
+                button.textContent = option.title;
+                button.onclick = () => showChoiceFeedback(option);
+                buttonsDiv.appendChild(button);
             });
+            
+            interactionDiv.appendChild(buttonsDiv);
         }
-        contentHTML += `</div></div>`;
+
+        itemDiv.appendChild(interactionDiv);
     }
 
-    itemDiv.innerHTML = contentHTML;
     return itemDiv;
 }
 
