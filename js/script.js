@@ -734,6 +734,8 @@ function openModal(content, format = 'markdown') {
             
             // 触发懒加载检查
             lazyLoadImages();
+            // 延迟一小段时间再次检查，确保所有元素都已正确渲染
+            setTimeout(lazyLoadImages, 100);
         } else if (format === 'html') {
             // For HTML content, we still want to sanitize it
             const sanitizedHtml = content.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
@@ -752,7 +754,10 @@ function openModal(content, format = 'markdown') {
                 container.appendChild(img);
             });
             
+            // 触发懒加载检查
             lazyLoadImages();
+            // 延迟一小段时间再次检查，确保所有元素都已正确渲染
+            setTimeout(lazyLoadImages, 100);
         } else {
             console.warn("Unsupported format or marked.js not loaded. Displaying raw text.");
             modalBody.textContent = content; // Fallback to plain text
