@@ -20,6 +20,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // 添加 CDN 基础路径（移到全局作用域）
     window.CDN_BASE = '';
 
+    // 添加时间计数器相关变量
+    let timeCounterInterval = null;
+    const timeCounter = document.getElementById("time-counter");
+
     // 处理图片路径的函数
     const processImagePath = (path) => {
         if (!path) return '';
@@ -118,6 +122,8 @@ document.addEventListener("DOMContentLoaded", () => {
             if (checkPasswordExpiry()) {
                 document.body.style.overflow = '';
                 document.documentElement.style.overflow = '';
+                // 加载时间线数据
+                loadTimelineData();
                 return;
             }
 
@@ -167,6 +173,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     
                     // 记录登录时间
                     localStorage.setItem('lastLogin', new Date().getTime().toString());
+                    
+                    // 加载时间线数据
+                    loadTimelineData();
                 } else {
                     // 密码错误，清空输入并显示错误信息
                     enteredPassword = "";
@@ -197,9 +206,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const modal = document.getElementById("response-modal");
     const modalBody = document.getElementById("modal-body");
     const closeButton = document.querySelector(".close-button");
-    const timeCounter = document.getElementById("time-counter");
-
-    let timeCounterInterval;
 
     function updateTimeCounter(startDateTime) {
         const now = new Date();
@@ -212,30 +218,34 @@ document.addEventListener("DOMContentLoaded", () => {
         const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-        const timeUnits = timeCounter.querySelectorAll('.time-unit');
-        timeUnits[0].textContent = years.toString().padStart(2, '0');
-        timeUnits[1].textContent = months.toString().padStart(2, '0');
-        timeUnits[2].textContent = days.toString().padStart(2, '0');
-        timeUnits[3].textContent = hours.toString().padStart(2, '0');
-        timeUnits[4].textContent = minutes.toString().padStart(2, '0');
-        timeUnits[5].textContent = seconds.toString().padStart(2, '0');
+        if (timeCounter) {
+            const timeUnits = timeCounter.querySelectorAll('.time-unit');
+            if (timeUnits.length >= 6) {
+                timeUnits[0].textContent = years.toString().padStart(2, '0');
+                timeUnits[1].textContent = months.toString().padStart(2, '0');
+                timeUnits[2].textContent = days.toString().padStart(2, '0');
+                timeUnits[3].textContent = hours.toString().padStart(2, '0');
+                timeUnits[4].textContent = minutes.toString().padStart(2, '0');
+                timeUnits[5].textContent = seconds.toString().padStart(2, '0');
+            }
+        }
     }
 
-    fetch("data/timeline.json")
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP错误! 状态码: ${response.status}`);
-            }
-            // 确保响应被当作JSON处理
-            return response.json(); 
-        })
-        .then(data => {
-            const config = data.config;
-            const timelineEvents = data.timeline;
-
+    // 加载时间线
+    const loadTimelineData = async () => {
+        try {
+            const response = await fetch('data/timeline.json');
+            const data = await response.json();
+            
+            // 设置 CDN 基础路径
+            window.CDN_BASE = data.config.cdnBase || '';
+            
+            // 更新页面标题
+            document.title = data.config.pageTitle || "我们的故事";
+            
             // --- 应用计数器背景设置 --- 
-            if (config.counterBackground && counterSection) {
-                const bgConfig = config.counterBackground;
+            if (data.config.counterBackground && counterSection) {
+                const bgConfig = data.config.counterBackground;
                 // 使用 CDN 路径处理背景图片
                 const imageUrl = bgConfig.image ? `url('${processImagePath(bgConfig.image)}')` : 'none'; 
                 const blurAmount = bgConfig.blur || '0px';
@@ -249,8 +259,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             // --- 根据JSON配置更新计数器 --- 
-            pageTitleElement.textContent = config.pageTitle || "我们的故事";
-            const startDateTime = new Date(config.startDate + "T" + (config.startTime || "00:00:00"));
+            const startDateTime = new Date(data.config.startDate + "T" + (data.config.startTime || "00:00:00"));
             const today = new Date();
             today.setHours(0, 0, 0, 0);
 
@@ -261,10 +270,10 @@ document.addEventListener("DOMContentLoaded", () => {
             let daysToShow = 0;
 
             if (timeDiff < 0) {
-                textToShow = config.counterTextBefore || `距离和${config.partnerName}在一起还有`;
+                textToShow = data.config.counterTextBefore || `距离和${data.config.partnerName}在一起还有`;
                 daysToShow = dayDiff;
             } else {
-                textToShow = config.counterTextAfter || `和${config.partnerName}在一起已经`;
+                textToShow = data.config.counterTextAfter || `和${data.config.partnerName}在一起已经`;
                 const oneDay = 24 * 60 * 60 * 1000;
                 // 计算已过天数，确保同一天或之后至少为1天
                 daysToShow = Math.max(1, Math.floor((today - startDateTime) / oneDay) + 1);
@@ -273,39 +282,48 @@ document.addEventListener("DOMContentLoaded", () => {
             const options = { year: "numeric", month: "long", day: "numeric", weekday: "long" };
             const formattedStartDate = startDateTime.toLocaleDateString("zh-CN", options);
 
-            counterTextElement.textContent = textToShow;
-            startDateElement.textContent = `起始日: ${formattedStartDate}`;
-            animateCounter(counterDaysElement, daysToShow);
+            if (counterTextElement) counterTextElement.textContent = textToShow;
+            if (startDateElement) startDateElement.textContent = `起始日: ${formattedStartDate}`;
+            if (counterDaysElement) animateCounter(counterDaysElement, daysToShow);
 
             // 启动时间计数器
             updateTimeCounter(startDateTime);
-            clearInterval(timeCounterInterval);
+            if (timeCounterInterval) clearInterval(timeCounterInterval);
             timeCounterInterval = setInterval(() => updateTimeCounter(startDateTime), 1000);
-
-            // --- 填充时间线（倒序）--- 
-            // 确保timelineEvents是数组再进行排序
+            
+            // 获取排序设置
+            const settings = JSON.parse(localStorage.getItem("settings") || "{}");
+            const isReverseOrder = settings.timelineOrder !== undefined ? settings.timelineOrder : false;
+            
+            // 处理时间线数据
+            let timelineEvents = data.timeline;
             if (Array.isArray(timelineEvents)) {
-                // 首先分离置顶和非置顶的事件
+                // 分离置顶和非置顶事件
                 const pinnedEvents = timelineEvents.filter(event => event.top === true);
                 const unpinnedEvents = timelineEvents.filter(event => !event.top);
                 
-                // 对非置顶事件按日期排序（最新的在前）
-                unpinnedEvents.sort((a, b) => new Date(b.date) - new Date(a.date));
+                // 根据设置决定排序方向
+                unpinnedEvents.sort((a, b) => {
+                    const dateA = new Date(a.date);
+                    const dateB = new Date(b.date);
+                    // 注意：isReverseOrder 为 true 时是正序，false 时是倒序
+                    return isReverseOrder ? dateA - dateB : dateB - dateA;
+                });
                 
                 // 合并数组，置顶事件在前
-                const sortedEvents = [...pinnedEvents, ...unpinnedEvents];
-                
-                timelineSection.innerHTML = ''; // 清除之前的时间线项目
-                sortedEvents.forEach(event => {
-                    // 处理事件中的图片路径
+                timelineEvents = [...pinnedEvents, ...unpinnedEvents];
+            }
+            
+            // 渲染时间线
+            if (timelineSection) {
+                timelineSection.innerHTML = ''; // 清除现有内容
+                timelineEvents.forEach(event => {
                     if (event.image) {
                         event.image = processImagePath(event.image);
                     }
-                    // 处理交互选项中的图片路径
                     if (event.interaction && event.interaction.options) {
                         event.interaction.options.forEach(option => {
                             if (option.content && option.format === 'markdown') {
-                                // 处理 Markdown 内容中的图片路径
                                 option.content = option.content.replace(/!\[.*?\]\((.*?)\)/g, (match, path) => {
                                     return match.replace(path, processImagePath(path));
                                 });
@@ -315,16 +333,15 @@ document.addEventListener("DOMContentLoaded", () => {
                     const item = createTimelineItem(event);
                     timelineSection.appendChild(item);
                 });
-            } else {
-                console.error("时间线数据不是数组:", timelineEvents);
-                timelineSection.innerHTML = '<p style="color: red;">时间线数据格式错误。</p>';
             }
-        })
-        .catch(error => {
-            console.error("获取或处理时间线数据时出错:", error);
-            timelineSection.innerHTML = 
-                '<p style="color: red;">无法加载时间线数据。请检查 `data/timeline.json` 文件是否存在且格式正确。</p>';
-        });
+            
+            // 初始化懒加载
+            lazyLoadImages();
+            
+        } catch (error) {
+            console.error('加载时间线数据失败:', error);
+        }
+    };
 
     // --- 模态框事件监听器 --- 
     if (closeButton) {
@@ -368,14 +385,22 @@ document.addEventListener("DOMContentLoaded", () => {
     // 从 localStorage 加载设置
     const loadSettings = () => {
         const settings = JSON.parse(localStorage.getItem("settings") || "{}");
-        timelineOrder.checked = settings.timelineOrder || false;
+        // 设置默认值为倒序（false 表示倒序）
+        timelineOrder.checked = settings.timelineOrder !== undefined ? settings.timelineOrder : false;
         passwordExpiry.value = settings.passwordExpiry || 30;
     };
+
+    // 监听时间线排序变化
+    timelineOrder.addEventListener("change", () => {
+        // 移除实时生效的逻辑，改为只在保存设置时生效
+        // saveSettingsToStorage();
+    });
 
     // 保存设置到 localStorage
     const saveSettingsToStorage = () => {
         const settings = {
-            timelineOrder: timelineOrder.checked,
+            // 设置默认值为倒序（false 表示倒序）
+            timelineOrder: timelineOrder.checked !== undefined ? timelineOrder.checked : false,
             passwordExpiry: parseInt(passwordExpiry.value) || 30,
             darkMode: darkModeToggle.checked,
             systemTheme: systemThemeToggle.checked
@@ -406,58 +431,6 @@ document.addEventListener("DOMContentLoaded", () => {
         setTimeout(lazyLoadImages, 100);
     };
 
-    // 加载时间线
-    const loadTimelineData = async () => {
-        try {
-            const response = await fetch('data/timeline.json');
-            const data = await response.json();
-            
-            // 设置 CDN 基础路径
-            window.CDN_BASE = data.config.cdnBase || '';
-            
-            // 更新页面标题
-            document.title = data.config.pageTitle;
-            
-            // 更新倒计时文本
-            const counterTextBefore = document.getElementById("counter-text-before");
-            const counterTextAfter = document.getElementById("counter-text-after");
-            if (counterTextBefore) counterTextBefore.textContent = data.config.counterTextBefore;
-            if (counterTextAfter) counterTextAfter.textContent = data.config.counterTextAfter;
-            
-            // 更新倒计时背景
-            const counterBackground = data.config.counterBackground;
-            if (counterBackground) {
-                const counterSection = document.querySelector(".counter-section");
-                if (counterSection) {
-                    counterSection.style.backgroundImage = `url(${processImagePath(counterBackground.image)})`;
-                    counterSection.style.backdropFilter = `blur(${counterBackground.blur})`;
-                    counterSection.style.backgroundColor = counterBackground.colorOverlay;
-                }
-            }
-            
-            // 渲染时间线
-            renderTimeline(data.timeline);
-            
-            // 初始化倒计时
-            initCountdown(data.config.startDate, data.config.startTime);
-            
-            // 初始化密码验证
-            initPasswordValidation(data.config.password);
-            
-            // 初始化设置
-            initSettings();
-            
-            // 初始化主题设置
-            initThemeSettings();
-            
-            // 初始化懒加载
-            initLazyLoading();
-            
-        } catch (error) {
-            console.error('加载时间线数据失败:', error);
-        }
-    };
-
     // 设置按钮点击事件
     settingsButton.addEventListener("click", () => {
         settingsModal.style.display = "block";
@@ -481,6 +454,9 @@ document.addEventListener("DOMContentLoaded", () => {
         saveSettingsToStorage();
         settingsModal.style.display = "none";
     });
+
+    // 初始化设置
+    loadSettings();
 
     // 设置按钮拖动功能
     let isDragging = false;
@@ -556,10 +532,6 @@ document.addEventListener("DOMContentLoaded", () => {
             y: yOffset
         }));
     }
-
-    // 初始化
-    loadSettings();
-    loadButtonPosition();
 
     // 回到顶部功能
     const backToTop = document.getElementById("back-to-top");
