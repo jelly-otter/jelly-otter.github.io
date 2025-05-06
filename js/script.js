@@ -296,6 +296,217 @@ document.addEventListener("DOMContentLoaded", () => {
         // 延迟一小段时间再次检查，确保所有元素都已正确渲染
         setTimeout(lazyLoadImages, 100);
     });
+
+    // 设置功能
+    const settingsButton = document.getElementById("settings-button");
+    const settingsModal = document.getElementById("settings-modal");
+    const timelineOrder = document.getElementById("timeline-order");
+    const passwordExpiry = document.getElementById("password-expiry");
+    const saveSettings = document.getElementById("save-settings");
+
+    // 从 localStorage 加载设置
+    const loadSettings = () => {
+        const settings = JSON.parse(localStorage.getItem("settings") || "{}");
+        timelineOrder.checked = settings.timelineOrder || false;
+        passwordExpiry.value = settings.passwordExpiry || 30;
+    };
+
+    // 保存设置到 localStorage
+    const saveSettingsToStorage = () => {
+        const settings = {
+            timelineOrder: timelineOrder.checked,
+            passwordExpiry: parseInt(passwordExpiry.value) || 30
+        };
+        localStorage.setItem("settings", JSON.stringify(settings));
+        
+        // 更新密码有效期
+        const expiryTime = settings.passwordExpiry * 60 * 1000; // 转换为毫秒
+        const lastLogin = localStorage.getItem('lastLogin');
+        if (lastLogin) {
+            const now = new Date().getTime();
+            if (now - parseInt(lastLogin) > expiryTime) {
+                // 如果超过有效期，重新显示密码界面
+                document.getElementById("password-screen").style.display = "block";
+                document.querySelector(".container").style.display = "none";
+            }
+        }
+
+        // 重新加载时间线
+        loadTimeline();
+    };
+
+    // 加载时间线
+    const loadTimeline = () => {
+        fetch("data/timeline.json")
+            .then(response => response.json())
+            .then(data => {
+                const timelineEvents = data.timeline;
+                const settings = JSON.parse(localStorage.getItem("settings") || "{}");
+                
+                if (Array.isArray(timelineEvents)) {
+                    // 分离置顶和非置顶事件
+                    const pinnedEvents = timelineEvents.filter(event => event.top === true);
+                    const unpinnedEvents = timelineEvents.filter(event => !event.top);
+                    
+                    // 根据设置决定排序顺序
+                    if (settings.timelineOrder) {
+                        // 正序
+                        unpinnedEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+                    } else {
+                        // 倒序
+                        unpinnedEvents.sort((a, b) => new Date(b.date) - new Date(a.date));
+                    }
+                    
+                    // 合并数组，置顶事件在前
+                    const sortedEvents = [...pinnedEvents, ...unpinnedEvents];
+                    
+                    const timelineSection = document.getElementById("timeline-section");
+                    timelineSection.innerHTML = '';
+                    
+                    sortedEvents.forEach(event => {
+                        if (event.image) {
+                            event.image = getCDNImagePath(event.image);
+                        }
+                        if (event.interaction && event.interaction.options) {
+                            event.interaction.options.forEach(option => {
+                                if (option.content && option.format === 'markdown') {
+                                    option.content = option.content.replace(/!\[.*?\]\((.*?)\)/g, (match, path) => {
+                                        return match.replace(path, getCDNImagePath(path));
+                                    });
+                                }
+                            });
+                        }
+                        const item = createTimelineItem(event);
+                        timelineSection.appendChild(item);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error("加载时间线数据时出错:", error);
+            });
+    };
+
+    // 设置按钮点击事件
+    settingsButton.addEventListener("click", () => {
+        settingsModal.style.display = "block";
+    });
+
+    // 点击模态框外部关闭
+    settingsModal.addEventListener("click", (e) => {
+        if (e.target === settingsModal) {
+            settingsModal.style.display = "none";
+        }
+    });
+
+    // 保存设置按钮点击事件
+    saveSettings.addEventListener("click", () => {
+        saveSettingsToStorage();
+        settingsModal.style.display = "none";
+    });
+
+    // 设置按钮拖动功能
+    let isDragging = false;
+    let currentX;
+    let currentY;
+    let initialX;
+    let initialY;
+    let xOffset = 0;
+    let yOffset = 0;
+
+    // 从 localStorage 加载按钮位置
+    const loadButtonPosition = () => {
+        const position = JSON.parse(localStorage.getItem("settingsButtonPosition") || "{}");
+        xOffset = position.x || 0;
+        yOffset = position.y || 0;
+        setTranslate(xOffset, yOffset, settingsButton);
+    };
+
+    const setTranslate = (xPos, yPos, el) => {
+        el.style.transform = `translate(${xPos}px, ${yPos}px)`;
+    };
+
+    settingsButton.addEventListener("mousedown", dragStart);
+    settingsButton.addEventListener("touchstart", dragStart, false);
+    document.addEventListener("mousemove", drag);
+    document.addEventListener("touchmove", drag, false);
+    document.addEventListener("mouseup", dragEnd);
+    document.addEventListener("touchend", dragEnd, false);
+
+    function dragStart(e) {
+        if (e.type === "touchstart") {
+            initialX = e.touches[0].clientX - xOffset;
+            initialY = e.touches[0].clientY - yOffset;
+        } else {
+            initialX = e.clientX - xOffset;
+            initialY = e.clientY - yOffset;
+        }
+
+        if (e.target === settingsButton) {
+            isDragging = true;
+            settingsButton.classList.add("dragging");
+        }
+    }
+
+    function drag(e) {
+        if (isDragging) {
+            e.preventDefault();
+
+            if (e.type === "touchmove") {
+                currentX = e.touches[0].clientX - initialX;
+                currentY = e.touches[0].clientY - initialY;
+            } else {
+                currentX = e.clientX - initialX;
+                currentY = e.clientY - initialY;
+            }
+
+            xOffset = currentX;
+            yOffset = currentY;
+
+            setTranslate(currentX, currentY, settingsButton);
+        }
+    }
+
+    function dragEnd(e) {
+        initialX = currentX;
+        initialY = currentY;
+        isDragging = false;
+        settingsButton.classList.remove("dragging");
+
+        // 保存按钮位置到 localStorage
+        localStorage.setItem("settingsButtonPosition", JSON.stringify({
+            x: xOffset,
+            y: yOffset
+        }));
+    }
+
+    // 初始化
+    loadSettings();
+    loadButtonPosition();
+
+    // 回到顶部功能
+    const backToTop = document.getElementById("back-to-top");
+    let backToTopScrollTimeout;
+
+    // 监听滚动事件
+    window.addEventListener("scroll", () => {
+        clearTimeout(backToTopScrollTimeout);
+        backToTopScrollTimeout = setTimeout(() => {
+            // 当页面滚动超过300px时显示按钮
+            if (window.pageYOffset > 300) {
+                backToTop.classList.add("visible");
+            } else {
+                backToTop.classList.remove("visible");
+            }
+        }, 100);
+    });
+
+    // 点击回到顶部
+    backToTop.addEventListener("click", () => {
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+    });
 });
 
 function animateCounter(element, targetValue) {
