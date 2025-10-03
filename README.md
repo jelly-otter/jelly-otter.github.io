@@ -1,8 +1,12 @@
 # LoveDiary-Timeline 恋爱日记时间线
 
+> **📢 项目来源说明**  
+> 本项目 fork 自 [MoLeft/LoveDiary-Timeline](https://github.com/MoLeft/LoveDiary-Timeline)，基于原项目进行个人定制和修改。  
+> 感谢原作者 [@MoLeft](https://github.com/MoLeft) 的开源贡献！🙏
+
 这是一个用于记录和展示恋爱日记的响应式时间线网站。网站包含密码保护、时间线展示、互动功能、自适应暗色模式等特性。
 
-TIPS：这是一个完全由 [**Cursor**](https://www.cursor.com/) 开发的项目（包括README介绍，当然除了这句话）
+TIPS：原项目是一个完全由 [**Cursor**](https://www.cursor.com/) 开发的项目
 
 ## 功能特点
 
@@ -146,8 +150,16 @@ TIPS：这是一个完全由 [**Cursor**](https://www.cursor.com/) 开发的项�
 
 ## 许可证
 
-MIT License
+本项目采用 MIT License 开源许可证。
 
-## 致谢
+原项目和修改版本均遵循 MIT License，详见 [LICENSE](LICENSE) 文件。
 
-本项目基于 [MoLeft/LoveDiary-Timeline](https://github.com/MoLeft/LoveDiary-Timeline) 进行修改和定制。
+## 致谢与声明
+
+本项目完全基于 [MoLeft/LoveDiary-Timeline](https://github.com/MoLeft/LoveDiary-Timeline) 项目，在原项目的基础上进行个人定制和修改。
+
+**原作者**: [@MoLeft](https://github.com/MoLeft)  
+**原项目地址**: https://github.com/MoLeft/LoveDiary-Timeline  
+**许可证**: MIT License
+
+感谢原作者的精彩创意和无私分享！❤️
