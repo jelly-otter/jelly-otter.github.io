@@ -697,6 +697,8 @@ function createTimelineItem(eventData) {
         if (eventData.description.includes('<') && eventData.description.includes('>')) {
             // 包含HTML标签，直接使用
             descriptionHTML = eventData.description;
+            // 为HTML中的图片添加loaded类，使其可见
+            descriptionHTML = descriptionHTML.replace(/<img/g, '<img class="loaded"');
         } else {
             // 纯文本，包装在p标签中
             descriptionHTML = `<p>${eventData.description}</p>`;
@@ -726,10 +728,23 @@ function createTimelineItem(eventData) {
             <div class="interaction-buttons">
         `;
 
-        if (eventData.interaction.type === "memory" && eventData.interaction.feedback) {
-            const feedbackId = `feedback-${eventData.date.replace(/\W/g, '-')}-${Math.random().toString(36).substring(2, 7)}`;
-            contentHTML += `<button class="interaction-button" onclick="showFeedback('${feedbackId}')">${eventData.interaction.feedback.title || '回忆一下'} <span class="days-ago">(${daysDiff}天前)</span></button>`;
-            contentHTML += `<div id="${feedbackId}" class="feedback-content" style="display: none;">${eventData.interaction.feedback.default || ''}</div>`;
+        if (eventData.interaction.type === "memory") {
+            // 支持单个feedback或多个feedbacks
+            if (eventData.interaction.feedback) {
+                // 单个feedback（向后兼容）
+                const feedbackId = `feedback-${eventData.date.replace(/\W/g, '-')}-${Math.random().toString(36).substring(2, 7)}`;
+                contentHTML += `<button class="interaction-button" onclick="showFeedback('${feedbackId}')">${eventData.interaction.feedback.title || '回忆一下'} <span class="days-ago">(${daysDiff}天前)</span></button>`;
+                contentHTML += `<div id="${feedbackId}" class="feedback-content" style="display: none;">${eventData.interaction.feedback.default || ''}</div>`;
+            } else if (Array.isArray(eventData.interaction.feedbacks)) {
+                // 多个feedbacks
+                eventData.interaction.feedbacks.forEach((feedback) => {
+                    if (feedback && feedback.title) {
+                        const feedbackId = `feedback-${eventData.date.replace(/\W/g, '-')}-${Math.random().toString(36).substring(2, 7)}`;
+                        contentHTML += `<button class="interaction-button" onclick="showFeedback('${feedbackId}')">${feedback.title} <span class="days-ago">(${daysDiff}天前)</span></button>`;
+                        contentHTML += `<div id="${feedbackId}" class="feedback-content" style="display: none;">${feedback.default || ''}</div>`;
+                    }
+                });
+            }
         } else if (eventData.interaction.type === "choice" && Array.isArray(eventData.interaction.options)) {
             eventData.interaction.options.forEach((option) => {
                 if (option && option.title) {
@@ -869,4 +884,3 @@ function showChoiceFeedback(option) {
     if (!option) return;
     openModal(option.content, option.format || 'markdown');
 }
-

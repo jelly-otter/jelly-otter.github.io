@@ -19,20 +19,20 @@
     {
       "date": "2024-12-23",
       "title": "和冻冻的第一张照片",
-      "description": "这是海獭20年里过的最开心最开心的圣诞节，",
+      "description": "这是海獭20年里过的最开心最开心的圣诞节，就算当时还不能再烟花下搂住冻冻，但依然好幸福好幸福~",
       "image": "images/2024-12-23/IMG_4727.JPG",
       "interaction": {
         "type": "memory",
         "feedback": {
-          "title": "",
-          "default": ""
+          "title": "照片",
+          "default": "其实当时海獭做了好久心理建设才邀请冻冻要不要一起拍张照片，然后就获得了一只剪刀手冻和一只歪头獭。还记不记得当时冻冻和海獭发现我们两个都不会拍照，但是海獭觉得这样的冻也好可爱一只🥰"
         }
       }
     },
     {
       "date": "2025-04-03",
-      "title": "",
-      "description": "",
+      "title": "两个小脑袋",
+      "description": "还没有正式在一起的傻傻两小只，现在想想好像其实已经是像情侣一样了🤔",
       "image": "images/2025-04-03/IMG_5639.JPG",
       "interaction": {
         "type": "choice",
@@ -65,21 +65,19 @@
     },
     {
       "date": "2025-04-21",
-      "title": "",
-      "description": "",
-      "image": "images/2025-04-21/IMG_6079.JPG",
+      "title": "在ust的周末时光",
+      "description": "披着獭皮的冻！还有披着冻皮的獭！<div style='display: flex; gap: 10px; width: 100%;'><img src='images/2025-04-21/IMG_6079.JPG' style='width: calc(50% - 5px); height: auto; object-fit: cover; border-radius: 8px;'><img src='images/2025-04-21/IMG_6080.JPG' style='width: calc(50% - 5px); height: auto; object-fit: cover; border-radius: 8px;'></div>",
+      "image": "",
       "interaction": {
-        "type": "choice",
-        "options": [
+        "type": "memory",
+        "feedbacks": [
           {
-            "title": "",
-            "content": "",
-            "format": "markdown"
+            "title": "周末",
+            "default": "记得有一段时间，我们每个周日都下山大吃一顿，然后在学校的各种小桌子上干活儿。干活儿累了就贴一下，然后所有疲惫都可以一扫而空。"
           },
           {
-            "title": "",
-            "content": "",
-            "format": "markdown"
+            "title": "吃",
+            "default": "海獭想念HashtagB的蛋挞了😭"
           }
         ]
       }
@@ -173,7 +171,7 @@
     {
       "date": "2025-10-05",
       "title": "🦦和🍮在一起半年啦！！",
-      "description": "时间过得好快，一转眼我们已经在一起半年啦！这只果冻和这只海獭还要度过好多好多个半年，然后感叹十年二十年也过得好快好快 🥰💛",
+      "description": "时间过得好快，一转眼我们已经在一起半年啦！这只果冻和这只海獭还要度过好多好多个半年，然后感叹十年二十年也过得好快好快 💛",
       "image": "images/2025-10-05/Screenshot 2025-10-04 012718.png",
       "interaction": {
         "type": "choice",
