@@ -3,7 +3,7 @@
         "startDate": "2021-10-01", // 开始日期，格式：YYYY-MM-DD
         "startTime": "12:00:00", // 开始时间，格式：HH:mm:ss
         "partnerName": "小陈", // 伴侣名字
-        "pageTitle": "我们的故事", // 页面标题
+        "pageTitle": "Our Days", // 页面标题
         "counterTextBefore": "距离和小陈在一起还有", // 在一起之前的提示文字
         "counterTextAfter": "和小陈在一起已经", // 在一起之后的提示文字
         "password": "123456", // 访问密码
