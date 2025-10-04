@@ -19,7 +19,7 @@
     {
       "date": "2024-12-23",
       "title": "和冻冻的第一张照片",
-      "description": "这是海獭20年里过的最开心最开心的圣诞节，就算当时还不能再烟花下搂住冻冻，但依然好幸福好幸福~",
+      "description": "这是海獭20年里过的最开心最开心的圣诞节，就算当时还不能在烟花下搂住冻冻，也依然好幸福好幸福~",
       "image": "images/2024-12-23/IMG_4727.JPG",
       "interaction": {
         "type": "memory",
@@ -32,7 +32,7 @@
     {
       "date": "2025-04-03",
       "title": "两个小脑袋",
-      "description": "还没有正式在一起的傻傻两小只，现在想想好像其实已经是像情侣一样了🤔",
+      "description": "还没有正式在一起的傻傻两小只，脑袋，脑袋，小脑袋~~~<Br>从这一刻开始，Jelly's spot就已经永远属于Jelly了！",
       "image": "images/2025-04-03/IMG_5639.JPG",
       "interaction": {
         "type": "choice",
@@ -52,15 +52,18 @@
     },
     {
       "date": "2025-04-05",
-      "title": "",
-      "description": "",
-      "image": "images/2025-04-05/IMG_5781.JPG",
+      "title": "全世界最幸福的果冻和海獭！",
+      "description": "果冻和海獭真的在一起啦！",
+      "image": "images/2025-04-05/default_bg.jpg",
       "interaction": {
-        "type": "memory",
-        "feedback": {
-          "title": "",
-          "default": ""
-        }
+        "type": "choice",
+        "options": [
+          {
+            "title": "这是什么冻？",
+            "content": "## 这是一只困困小冻！\n ![困困小冻](images/2025-04-05/IMG_5781.JPG) \n 这时候困困的傻冻一定想不到接下来会发生什么吧🥰",
+            "format": "markdown"
+          }
+        ]
       }
     },
     {
@@ -84,87 +87,79 @@
     },
     {
       "date": "2025-05-09",
-      "title": "",
-      "description": "",
+      "title": "加餐！！！",
+      "description": "小芒果和小忙獭干完活儿来麦加餐，捕获一只吃麦冻😘",
       "image": "images/2025-05-09/IMG_6230.JPG",
       "interaction": {
         "type": "memory",
         "feedback": {
-          "title": "",
-          "default": ""
+          "title": "这是什么冻？",
+          "default": "这是一只标准的呆冻：因为冻冻不喜欢当一头呆冻，所以是一只呆冻呐呐呐呐！"
         }
       }
     },
     {
       "date": "2025-06-28",
-      "title": "",
-      "description": "",
+      "title": "cslab",
+      "description": "放暑假啦！在cslab也可以随时贴住。",
       "image": "images/2025-06-28/IMG_6608.JPG",
       "interaction": {
         "type": "memory",
         "feedback": {
-          "title": "",
-          "default": ""
+          "title": "🥬",
+          "default": "噢噢🎵~ 果冻是棵菠菜，果冻是棵菠菜！果冻是棵菠菜菠菜菠菜菠菜菠菜~~"
         }
       }
     },
     {
       "date": "2025-07-05",
-      "title": "",
-      "description": "",
+      "title": "兔子养殖大户",
+      "description": "一只小冻抱着她的小兔子（虽然是AI生成的）<br>冻冻还给海獭看她的白色小兔子（好像已经失宠了😭）",
       "image": "images/2025-07-05/IMG_7137.JPG",
       "interaction": {
         "type": "memory",
         "feedback": {
-          "title": "",
-          "default": ""
+          "title": "爱冻冻😘",
+          "default": "海獭之前一直看不起labubu。但是冻冻还记不记得那天在西安的时候，出地铁站的时候冻冻唱可爱版的labubu之歌，真的好可爱好可爱好可爱🥰当时海獭感觉心都化掉了🥰 爱冻冻。爱冻爱冻爱冻冻~~~ 爱冻冻！"
         }
       }
     },
     {
       "date": "2025-08-09",
-      "title": "",
-      "description": "",
+      "title": "2025年最后一次在ust小沙发贴贴🥺",
+      "description": "海獭✈️之前好像冻冻和獭獭都好焦虑，担心好多好多事情。也许这也是我们必须经历的考验吧，虽然暂时见不到冻冻，但是这只海獭永远都只属于小冻；等我们再一次抱到一起的时候，我们的感情就更加坚不可摧了！",
       "image": "images/2025-08-09/a0dea10a97564b420c66a17947dc3f15.JPG",
       "interaction": {
         "type": "memory",
         "feedback": {
-          "title": "",
-          "default": ""
+          "title": "😭",
+          "default": "暑假的最后几天冻冻牙和肚子都不舒服，海獭好心疼冻冻😭 冻冻牙疼肚子疼的时候海獭真的好心疼却好像什么都做不了🥺 冻冻今后也要照顾好自己，要健健康康的好不好🥺"
         }
       }
     },
     {
       "date": "2025-08-23",
-      "title": "",
-      "description": "",
+      "title": "绝版高铁票的旅行~🚄",
+      "description": "海獭和果冻越来越亲密啦🥰",
       "image": "images/2025-08-23/IMG_7178.JPG",
       "interaction": {
-        "type": "choice",
-        "options": [
-          {
-            "title": "",
-            "content": "",
-            "format": "markdown"
-          },
-          {
-            "title": "",
-            "content": "",
-            "format": "markdown"
-          }
-        ]
+        "type": "memory",
+        "feedback": {
+          "title": "🥰",
+          "default": "果冻彻底解锁了海獭的小肚子！我们还一起开发出了好多好多亲密的时刻，可以把冻冻壁咚然后抱起来放倒压住！【手动插入一只害羞獭表情包】"
+        }
       }
     },
     {
       "date": "2025-09-16",
-      "title": "",
-      "description": "",
+      "title": "🦦第一个有冻的生日",
+      "description": "一窝小兔子！还有小小果冻照顾着他们🥰",
       "image": "images/2025-09-16/IMG_7620.JPG",
       "interaction": {
         "type": "memory",
         "feedback": {
-          "title": "",
-          "default": ""
+          "title": "🍮！",
+          "default": "海獭等到转钟的时候打开冻冻送给海獭的生日礼物，结果突然发现收到了冻冻的消息，冻冻好早起床祝21岁的獭生日快乐诶🥺 海獭真的没有想到冻冻会按海獭的时间卡点，海獭好幸福好幸福好幸福！之后的每一年也都是有冻的一年🥰🥰🥰"
         }
       }
     },
